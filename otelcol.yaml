@@ -1,0 +1,24 @@
+extensions:
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  myprocessor:
+
+exporters:
+  jaeger:
+    endpoint: localhost:14250
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [myprocessor]
+      exporters: [jaeger]
+  extensions: []
