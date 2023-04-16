@@ -20,27 +20,28 @@ const (
 
 
 const (
-	defaultDatasource               string        = "tcp://127.0.0.1:9000/?database=signoz_traces"
-	defaultTraceDatabase            string        = "signoz_traces"
-	defaultMigrations               string        = "/migrations"
+	defaultDatasource               string        = "tcp://127.0.0.1:9002/?database=zen_traces"
+	defaultTraceDatabase            string        = "zen_traces" // zen_traces
+	defaultMigrations               string        = "/temp_migrations"
 	defaultOperationsTable          string        = "distributed_signoz_operations"
-	defaultIndexTable               string        = "distributed_signoz_index_v2"
-	localIndexTable                 string        = "signoz_index_v2"
+	defaultIndexTable               string        = "distributed_traces" // distributed_traces
+	localIndexTable                 string        = "traces" // traces
 	defaultErrorTable               string        = "distributed_signoz_error_index_v2"
-	defaultSpansTable               string        = "distributed_signoz_spans"
-	defaultAttributeTable           string        = "distributed_span_attributes"
-	defaultDurationSortTable        string        = "durationSort"
-	defaultDurationSortMVTable      string        = "durationSortMV"
+	defaultSpansTable               string        = "distributed_spans" // distributed_spans
+	defaultAttributeTable           string        = "distributed_span_attributes" // distributed_span_attributes
+	defaultDurationSortTable        string        = "traces_durationSort" // traces_duration_sort
+	defaultDurationSortMVTable      string        = "traces_durationSortMV" // traces_duration_sort_mv
 	defaultArchiveSpansTable        string        = "signoz_archive_spans"
 	defaultClusterName              string        = "cluster"
-	defaultDependencyGraphTable     string        = "dependency_graph_minutes"
-	defaultDependencyGraphServiceMV string        = "dependency_graph_minutes_service_calls_mv"
-	defaultDependencyGraphDbMV      string        = "dependency_graph_minutes_db_calls_mv"
-	DependencyGraphMessagingMV      string        = "dependency_graph_minutes_messaging_calls_mv"
+	defaultDependencyGraphTable     string        = "service_dependency_graph" // service_dependency_graph
+	defaultDependencyGraphServiceMV string        = "service_dependency_graph_messaging_calls_mv" // service_dependency_graph_messaging_calls_mv
+	defaultDependencyGraphDbMV      string        = "service_dependency_graph_db_calls_mv" // service_dependency_graph_db_calls_mv
+	DependencyGraphMessagingMV      string        = "service_dependency_graph_service_calls_mv" // service_dependency_graph_service_calls_mv
 	defaultWriteBatchDelay          time.Duration = 2 * time.Second
 	defaultWriteBatchSize           int           = 100000
 	defaultEncoding                 Encoding      = EncodingJSON
 )
+
 
 type clickHouseConfig struct {
 	namespace                  string

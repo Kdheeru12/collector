@@ -160,14 +160,14 @@ func (f *Factory) connect(cfg *clickHouseConfig) (clickhouse.Conn, error) {
 func buildClickhouseMigrateURL(datasource string, cluster string) (string, error) {
 	// return fmt.Sprintf("clickhouse://localhost:9000?database=default&x-multi-statement=true"), nil
 	var clickhouseUrl string
-	database := "signoz_traces"
+	database := "zen_traces"
 	parsedURL, err := url.Parse(datasource)
 	if err != nil {
 		return "", err
 	}
 	host := parsedURL.Host
 	if host == "" {
-		return "", fmt.Errorf("Unable to parse host")
+		return "", fmt.Errorf("unable to parse host")
 
 	}
 	paramMap, err := url.ParseQuery(parsedURL.RawQuery)
