@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS zen_traces.traces ON CLUSTER cluster (
+CREATE TABLE IF NOT EXISTS zen_traces_test.traces ON CLUSTER cluster (
   timestamp DateTime64(9) CODEC(DoubleDelta, LZ4),
   traceID FixedString(32) CODEC(ZSTD(1)),
   spanID String CODEC(ZSTD(1)),
@@ -64,5 +64,5 @@ SET allow_experimental_projection_optimization = 1;
 
 
 
-CREATE TABLE IF NOT EXISTS zen_traces.distributed_traces ON CLUSTER cluster AS zen_traces.traces
-ENGINE = Distributed("cluster", "zen_traces", traces, cityHash64(traceID));
+CREATE TABLE IF NOT EXISTS zen_traces_test.distributed_traces ON CLUSTER cluster AS zen_traces_test.traces
+ENGINE = Distributed("cluster", "zen_traces_test", traces, cityHash64(traceID));

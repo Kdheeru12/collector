@@ -5,7 +5,7 @@ import (
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 )
 type Config struct {
-	exporterhelper.Option `mapstructure:",squash"`
+	exporterhelper.Option `mapstructure:"squash"`
 	Datasource string `mapstructure:"datasource"`
 	Migrations string `mapstructure:"migrations"`
 	

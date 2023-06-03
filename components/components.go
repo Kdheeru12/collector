@@ -1,6 +1,7 @@
 package components
 
 import (
+	zentraceexporter "custom-otel/exporters/traces/zenexporter"
 	"custom-otel/processors/myprocessor"
 
 	"github.com/open-telemetry/opentelemetry-collector-contrib/exporter/carbonexporter"
@@ -198,6 +199,7 @@ func Components() (otelcol.Factories, error) {
 		prometheusremotewriteexporter.NewFactory(),
 		pulsarexporter.NewFactory(),
 		zipkinexporter.NewFactory(),
+		zentraceexporter.NewFactory(),
 	}
 	for _, exp := range factories.Exporters {
 		exporters = append(exporters, exp)

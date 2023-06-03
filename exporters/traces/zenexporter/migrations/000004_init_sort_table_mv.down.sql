@@ -1,3 +1,3 @@
-DROP TABLE IF EXISTS zen_traces.traces_durationSort ON CLUSTER cluster;
-DROP VIEW IF EXISTS zen_traces.traces_durationSortMV ON CLUSTER cluster;
+DROP TABLE IF EXISTS zen_traces_test.traces_durationSort ON CLUSTER cluster;
+DROP VIEW IF EXISTS zen_traces_test.traces_durationSortMV ON CLUSTER cluster;
 

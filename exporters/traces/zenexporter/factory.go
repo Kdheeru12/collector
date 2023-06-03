@@ -7,6 +7,8 @@ import (
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/clickhouse"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/tag"
@@ -49,7 +51,7 @@ func createDefaultConfig() component.Config {
 }
 // NewFactory creates a factory for the zentraceexporter.
 func NewFactory() exporter.Factory {
-
+	fmt.Printf("dmksasamlamdaldmdalkmds")
 	return exporter.NewFactory(
 		typeStr,
 		createDefaultConfig,
@@ -87,7 +89,8 @@ func createTracesExporter(ctx context.Context, settings exporter.CreateSettings,
 
 
 
-func ClickHouseFactory(migrations string, datasource string) *Factory {
+func ClickHouseFactory(datasource string, migrations string) *Factory {
+	fmt.Println(migrations, datasource)
 	writeLatencyDistribution := view.Distribution(100, 250, 500, 750, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000)
 
 	writeLatencyView := &view.View{
@@ -113,11 +116,11 @@ func ClickHouseFactory(migrations string, datasource string) *Factory {
 
 func (f *Factory) Initialize(logger *zap.Logger) error {
 	f.logger = logger
-
+	fmt.Println(f.Settings)
 	dbClient, err := f.connect(f.Settings.defaultConfig)
 	
 	if err != nil {
-		return fmt.Errorf("error connecting to primary db: %v", err)
+		return fmt.Errorf("error connecting to primary db: %v %v", err, f.Settings.defaultConfig)
 	}
 	f.dbClient = dbClient
 
@@ -136,7 +139,7 @@ func (f *Factory) Initialize(logger *zap.Logger) error {
 	if err != nil {
 		return fmt.Errorf("error building clickhouse migrate url: %v", err)
 	}
-
+	fmt.Println("file://"+f.Settings.defaultConfig.Migrations, clickhouseUrl)
 	m, err := migrate.New(
 		"file://"+f.Settings.defaultConfig.Migrations,
 		clickhouseUrl)
@@ -158,9 +161,10 @@ func (f *Factory) connect(cfg *clickHouseConfig) (clickhouse.Conn, error) {
 }
 
 func buildClickhouseMigrateURL(datasource string, cluster string) (string, error) {
+	// fmt.Printf("dmksasamlamdaldmdalkmds")
 	// return fmt.Sprintf("clickhouse://localhost:9000?database=default&x-multi-statement=true"), nil
 	var clickhouseUrl string
-	database := "zen_traces"
+	database := "zen_traces_test"
 	parsedURL, err := url.Parse(datasource)
 	if err != nil {
 		return "", err

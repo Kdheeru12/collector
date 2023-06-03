@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS zen_traces.service_dependency_graph ON CLUSTER cluster (
+CREATE TABLE IF NOT EXISTS zen_traces_test.service_dependency_graph ON CLUSTER cluster (
     src LowCardinality(String) CODEC(ZSTD(1)),
     dest LowCardinality(String) CODEC(ZSTD(1)),
     duration_quantiles_state AggregateFunction(quantiles(0.5, 0.75, 0.9, 0.95, 0.99), Float64) CODEC(Default),
@@ -15,8 +15,8 @@ TTL toDateTime(timestamp) + INTERVAL 604800 SECOND DELETE;
 
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS zen_traces.service_dependency_graph_service_calls_mv ON CLUSTER cluster
-TO zen_traces.service_dependency_graph AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS zen_traces_test.service_dependency_graph_service_calls_mv ON CLUSTER cluster
+TO zen_traces_test.service_dependency_graph AS
 SELECT
     A.serviceName as src,
     B.serviceName as dest,
@@ -27,13 +27,13 @@ SELECT
     B.resourceTagsMap['deployment.environment'] as deployment_environment,
     B.resourceTagsMap['k8s.cluster.name'] as k8s_cluster_name,
     B.resourceTagsMap['k8s.namespace.name'] as k8s_namespace_name
-FROM zen_traces.traces AS A, zen_traces.traces AS B
+FROM zen_traces_test.traces AS A, zen_traces_test.traces AS B
 WHERE (A.serviceName != B.serviceName) AND (A.spanID = B.parentSpanID)
 GROUP BY timestamp, src, dest, deployment_environment, k8s_cluster_name, k8s_namespace_name;
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS zen_traces.service_dependency_graph_db_calls_mv ON CLUSTER cluster
-TO zen_traces.service_dependency_graph AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS zen_traces_test.service_dependency_graph_db_calls_mv ON CLUSTER cluster
+TO zen_traces_test.service_dependency_graph AS
 SELECT
     serviceName as src,
     tagMap['db.system'] as dest,
@@ -44,13 +44,13 @@ SELECT
     resourceTagsMap['deployment.environment'] as deployment_environment,
     resourceTagsMap['k8s.cluster.name'] as k8s_cluster_name,
     resourceTagsMap['k8s.namespace.name'] as k8s_namespace_name
-FROM zen_traces.traces
+FROM zen_traces_test.traces
 WHERE dest != '' and kind != 2
 GROUP BY timestamp, src, dest, deployment_environment, k8s_cluster_name, k8s_namespace_name;
 
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS zen_traces.service_dependency_graph_messaging_calls_mv ON CLUSTER cluster
-TO zen_traces.service_dependency_graph AS
+CREATE MATERIALIZED VIEW IF NOT EXISTS zen_traces_test.service_dependency_graph_messaging_calls_mv ON CLUSTER cluster
+TO zen_traces_test.service_dependency_graph AS
 SELECT
     serviceName as src,
     tagMap['messaging.system'] as dest,
@@ -61,10 +61,10 @@ SELECT
     resourceTagsMap['deployment.environment'] as deployment_environment,
     resourceTagsMap['k8s.cluster.name'] as k8s_cluster_name,
     resourceTagsMap['k8s.namespace.name'] as k8s_namespace_name
-FROM zen_traces.traces
+FROM zen_traces_test.traces
 WHERE dest != '' and kind != 2
 GROUP BY timestamp, src, dest, deployment_environment, k8s_cluster_name, k8s_namespace_name;
 
 
-CREATE TABLE IF NOT EXISTS zen_traces.distributed_service_dependency_graph ON CLUSTER cluster AS zen_traces.service_dependency_graph
-ENGINE = Distributed("cluster", "zen_traces", service_dependency_graph, cityHash64(rand()));
+CREATE TABLE IF NOT EXISTS zen_traces_test.distributed_service_dependency_graph ON CLUSTER cluster AS zen_traces_test.service_dependency_graph
+ENGINE = Distributed("cluster", "zen_traces_test", service_dependency_graph, cityHash64(rand()));

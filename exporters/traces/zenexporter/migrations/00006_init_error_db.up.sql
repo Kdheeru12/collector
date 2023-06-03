@@ -1,0 +1,25 @@
+CREATE TABLE IF NOT EXISTS zen_traces_test.trace_errors ON CLUSTER cluster (
+  timestamp DateTime64(9) CODEC(DoubleDelta, LZ4),
+  errorID FixedString(32) CODEC(ZSTD(1)),
+  groupID FixedString(32) CODEC(ZSTD(1)),
+  traceID FixedString(32) CODEC(ZSTD(1)),
+  spanID String CODEC(ZSTD(1)),
+  serviceName LowCardinality(String) CODEC(ZSTD(1)),
+  exceptionType LowCardinality(String) CODEC(ZSTD(1)),
+  exceptionMessage String CODEC(ZSTD(1)),
+  exceptionStacktrace String CODEC(ZSTD(1)),
+  exceptionEscaped bool CODEC(T64, ZSTD(1)),
+  resourceTagsMap Map(LowCardinality(String), String) CODEC(ZSTD(1)),
+  INDEX idx_error_id errorID TYPE bloom_filter GRANULARITY 4,
+  INDEX idx_resourceTagsMapKeys mapKeys(resourceTagsMap) TYPE bloom_filter(0.01) GRANULARITY 64,
+  INDEX idx_resourceTagsMapValues mapValues(resourceTagsMap) TYPE bloom_filter(0.01) GRANULARITY 64,
+) ENGINE MergeTree
+PARTITION BY toDate(timestamp)
+ORDER BY (timestamp, groupID)
+TTL toDateTime(timestamp) + INTERVAL 604800 SECOND DELETE
+SETTINGS ttl_only_drop_parts = 1;
+
+
+
+CREATE TABLE IF NOT EXISTS zen_traces_test.distributed_trace_errors ON CLUSTER cluster AS zen_traces_test.trace_errors
+ENGINE = Distributed("cluster", "zen_traces_test", trace_errors, cityHash64(groupID));

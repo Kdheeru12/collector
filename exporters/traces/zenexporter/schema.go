@@ -74,6 +74,7 @@ type Span struct {
 	Name               string             `json:"name,omitempty"`
 	DurationNano       uint64             `json:"durationNano,omitempty"`
 	StartTimeUnixNano  uint64             `json:"startTimeUnixNano,omitempty"`
+	EndTimeUnixNano    uint64             `json:"endTimeUnixNano,omitempty"`
 	ServiceName        string             `json:"serviceName,omitempty"`
 	Kind               int8               `json:"kind,omitempty"`
 	StatusCode         int16              `json:"statusCode,omitempty"`
@@ -128,6 +129,7 @@ func (s *Span) MarshalLogObject(enc zapcore.ObjectEncoder) error {
 	enc.AddString("name", s.Name)
 	enc.AddUint64("durationNano", s.DurationNano)
 	enc.AddUint64("startTimeUnixNano", s.StartTimeUnixNano)
+	enc.AddUint64("endTimeUnixNano", s.EndTimeUnixNano)
 	enc.AddString("serviceName", s.ServiceName)
 	enc.AddInt8("kind", s.Kind)
 	enc.AddInt16("statusCode", s.StatusCode)

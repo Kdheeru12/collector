@@ -20,13 +20,13 @@ const (
 
 
 const (
-	defaultDatasource               string        = "tcp://127.0.0.1:9002/?database=zen_traces"
-	defaultTraceDatabase            string        = "zen_traces" // zen_traces
-	defaultMigrations               string        = "/temp_migrations"
+	defaultDatasource               string        = "tcp://localhost:9002/?database=zen_traces_test"
+	defaultTraceDatabase            string        = "zen_traces_test" // zen_traces_test
+	defaultMigrations               string        = "/exporters/traces/zenexporter/migrations"
 	defaultOperationsTable          string        = "distributed_signoz_operations"
 	defaultIndexTable               string        = "distributed_traces" // distributed_traces
 	localIndexTable                 string        = "traces" // traces
-	defaultErrorTable               string        = "distributed_signoz_error_index_v2"
+	defaultErrorTable               string        = "distributed_trace_errors"
 	defaultSpansTable               string        = "distributed_spans" // distributed_spans
 	defaultAttributeTable           string        = "distributed_span_attributes" // distributed_span_attributes
 	defaultDurationSortTable        string        = "traces_durationSort" // traces_duration_sort

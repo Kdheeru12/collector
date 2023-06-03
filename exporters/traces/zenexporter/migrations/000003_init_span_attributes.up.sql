@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS zen_traces.span_attributes ON CLUSTER cluster (
+CREATE TABLE IF NOT EXISTS zen_traces_test.span_attributes ON CLUSTER cluster (
     timestamp DateTime CODEC(DoubleDelta, ZSTD(1)), 
     tagKey LowCardinality(String) CODEC(ZSTD(1)),
     tagType Enum('tag', 'resource') CODEC(ZSTD(1)),
@@ -11,5 +11,5 @@ ORDER BY (tagKey, tagType, dataType, stringTagValue, float64TagValue)
 TTL toDateTime(timestamp) + INTERVAL 172800 SECOND DELETE
 SETTINGS ttl_only_drop_parts = 1, allow_nullable_key = 1;
 
-CREATE TABLE IF NOT EXISTS zen_traces.distributed_span_attributes ON CLUSTER cluster AS zen_traces.span_attributes
-ENGINE = Distributed("cluster", "zen_traces", span_attributes, cityHash64(rand()));
+CREATE TABLE IF NOT EXISTS zen_traces_test.distributed_span_attributes ON CLUSTER cluster AS zen_traces_test.span_attributes
+ENGINE = Distributed("cluster", "zen_traces_test", span_attributes, cityHash64(rand()));

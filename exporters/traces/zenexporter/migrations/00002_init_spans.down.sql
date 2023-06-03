@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS zen_traces.spans ON CLUSTER cluster;
+DROP TABLE IF EXISTS zen_traces_test.spans ON CLUSTER cluster;
