@@ -3,22 +3,27 @@ extensions:
 receivers:
   otlp:
     protocols:
-      grpc:
-      http:
+      grpc: {}
+      http: {}
 
 processors:
-  myprocessor:
+  myprocessor: {}
 
 exporters:
   jaeger:
     endpoint: localhost:14250
     tls:
       insecure: true
+  zentraceexporter:
+    datasource: tcp://localhost:9002/?database=zen_traces_test
+    migrations: exporters/traces/zenexporter/
+  logging:
+    loglevel: debug
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
       processors: [myprocessor]
-      exporters: [jaeger]
+      exporters: [jaeger, zentraceexporter]
   extensions: []
