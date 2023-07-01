@@ -21,7 +21,7 @@ import (
 
 const (
 	// The value of "type" key in configuration.
-	typeStr = "zentraceexporter"
+	typeStr          = "zentraceexporter"
 	primaryNamespace = "clickhouse"
 	archiveNamespace = "clickhouse-archive"
 )
@@ -32,23 +32,19 @@ type Writer interface { // Writer is an interface that allows writing spans to p
 
 type writerMaker func(WriterOptions) (Writer, error)
 
-
 type Factory struct {
 	logger     *zap.Logger
-	Settings    *ClickHouseSettings
+	Settings   *ClickHouseSettings
 	dbClient   clickhouse.Conn
 	archive    clickhouse.Conn
 	datasource string
 	makeWriter writerMaker
 }
 
-
-
 func createDefaultConfig() component.Config {
-	return &Config{
-		
-	}
+	return &Config{}
 }
+
 // NewFactory creates a factory for the zentraceexporter.
 func NewFactory() exporter.Factory {
 	fmt.Printf("dmksasamlamdaldmdalkmds")
@@ -87,8 +83,6 @@ func createTracesExporter(ctx context.Context, settings exporter.CreateSettings,
 	)
 }
 
-
-
 func ClickHouseFactory(datasource string, migrations string) *Factory {
 	fmt.Println(migrations, datasource)
 	writeLatencyDistribution := view.Distribution(100, 250, 500, 750, 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000)
@@ -102,7 +96,7 @@ func ClickHouseFactory(datasource string, migrations string) *Factory {
 	}
 
 	view.Register(writeLatencyView)
-	
+
 	return &Factory{
 		Settings: GetDefaultSettings(migrations, datasource, primaryNamespace, archiveNamespace),
 		// makeReader: func(db *clickhouse.Conn, operationsTable, indexTable, spansTable string) (spanstore.Reader, error) {
@@ -118,7 +112,7 @@ func (f *Factory) Initialize(logger *zap.Logger) error {
 	f.logger = logger
 	fmt.Println(f.Settings)
 	dbClient, err := f.connect(f.Settings.defaultConfig)
-	
+
 	if err != nil {
 		return fmt.Errorf("error connecting to primary db: %v %v", err, f.Settings.defaultConfig)
 	}
@@ -150,7 +144,6 @@ func (f *Factory) Initialize(logger *zap.Logger) error {
 	f.logger.Info("Clickhouse Migrate finished", zap.Error(err))
 	return nil
 }
-
 
 func (f *Factory) connect(cfg *clickHouseConfig) (clickhouse.Conn, error) {
 	if cfg.Encoding != EncodingJSON && cfg.Encoding != EncodingProto {
@@ -189,19 +182,19 @@ func buildClickhouseMigrateURL(datasource string, cluster string) (string, error
 	return clickhouseUrl, nil
 }
 
-
 func (f *Factory) CreateSpanWriter() (Writer, error) {
 	cfg := f.Settings.defaultConfig
 	return f.makeWriter(WriterOptions{
-		logger:         f.logger,
-		db:             f.dbClient,
-		traceDatabase:  cfg.TraceDatabase,
-		spansTable:     cfg.SpansTable,
-		indexTable:     cfg.IndexTable,
-		errorTable:     cfg.ErrorTable,
-		attributeTable: cfg.AttributeTable,
-		encoding:       cfg.Encoding,
-		delay:          cfg.WriteBatchDelay,
-		size:           cfg.WriteBatchSize,
+		logger:                f.logger,
+		db:                    f.dbClient,
+		traceDatabase:         cfg.TraceDatabase,
+		spansTable:            cfg.SpansTable,
+		indexTable:            cfg.IndexTable,
+		errorTable:            cfg.ErrorTable,
+		attributeTable:        cfg.AttributeTable,
+		possibleQueryKeyTable: cfg.PossibleQueryKeys,
+		encoding:              cfg.Encoding,
+		delay:                 cfg.WriteBatchDelay,
+		size:                  cfg.WriteBatchSize,
 	})
 }

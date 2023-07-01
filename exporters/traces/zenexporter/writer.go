@@ -14,34 +14,35 @@ import (
 	"go.uber.org/zap"
 )
 
-
 type SpanWriter struct {
-	logger         *zap.Logger
-	db             clickhouse.Conn
-	traceDatabase  string
-	indexTable     string
-	errorTable     string
-	spansTable     string
-	attributeTable string
-	encoding       Encoding
-	delay          time.Duration
-	size           int
-	spans          chan *Span
-	finish         chan bool
-	done           sync.WaitGroup
+	logger                *zap.Logger
+	db                    clickhouse.Conn
+	traceDatabase         string
+	indexTable            string
+	errorTable            string
+	spansTable            string
+	attributeTable        string
+	possibleQueryKeyTable string
+	encoding              Encoding
+	delay                 time.Duration
+	size                  int
+	spans                 chan *Span
+	finish                chan bool
+	done                  sync.WaitGroup
 }
 
 type WriterOptions struct {
-	logger         *zap.Logger
-	db             clickhouse.Conn
-	traceDatabase  string
-	spansTable     string
-	indexTable     string
-	errorTable     string
-	attributeTable string
-	encoding       Encoding
-	delay          time.Duration
-	size           int
+	logger                *zap.Logger
+	db                    clickhouse.Conn
+	traceDatabase         string
+	spansTable            string
+	indexTable            string
+	errorTable            string
+	attributeTable        string
+	possibleQueryKeyTable string
+	encoding              Encoding
+	delay                 time.Duration
+	size                  int
 }
 
 func (w *SpanWriter) PushSpanIntoQueue(span *Span) error {
@@ -49,24 +50,24 @@ func (w *SpanWriter) PushSpanIntoQueue(span *Span) error {
 	return nil
 }
 
-
 func TraceWriter(options WriterOptions) *SpanWriter {
 	if err := view.Register(SpansCountView, SpansCountBytesView); err != nil {
 		return nil
 	}
 	writer := &SpanWriter{
-		logger:         options.logger,
-		db:             options.db,
-		traceDatabase:  options.traceDatabase,
-		indexTable:     options.indexTable,
-		errorTable:     options.errorTable,
-		spansTable:     options.spansTable,
-		attributeTable: options.attributeTable,
-		encoding:       options.encoding,
-		delay:          options.delay,
-		size:           options.size,
-		spans:          make(chan *Span, options.size),
-		finish:         make(chan bool),
+		logger:                options.logger,
+		db:                    options.db,
+		traceDatabase:         options.traceDatabase,
+		indexTable:            options.indexTable,
+		errorTable:            options.errorTable,
+		spansTable:            options.spansTable,
+		attributeTable:        options.attributeTable,
+		possibleQueryKeyTable: options.possibleQueryKeyTable,
+		encoding:              options.encoding,
+		delay:                 options.delay,
+		size:                  options.size,
+		spans:                 make(chan *Span, options.size),
+		finish:                make(chan bool),
 	}
 
 	go writer.backgroundWriter()
@@ -116,7 +117,7 @@ func (w *SpanWriter) backgroundWriter() {
 }
 
 func (w *SpanWriter) writeBatch(batch []*Span) error {
-	// fmt.Printf("%#v\n", w)	
+	// fmt.Printf("%#v\n", w)
 	// fmt.Println("..........")
 	// fmt.Printf("%#v\n", batch)
 	// fmt.Print(w.spansTable, w.indexTable,  w.errorTable, w.attributeTable)
@@ -142,17 +143,16 @@ func (w *SpanWriter) writeBatch(batch []*Span) error {
 			return err
 		}
 	}
-	// if w.attributeTable != "" {
-	// 	if err := w.writeTagBatch(batch); err != nil {
-	// 		logBatch := batch[:int(math.Min(10, float64(len(batch))))]
-	// 		w.logger.Error("Could not write a batch of spans to tag table: ", zap.Any("batch", logBatch), zap.Error(err))
-	// 		return err
-	// 	}
-	// }
+	if w.possibleQueryKeyTable != "" {
+		if err := w.writePossibleKeysToQuery(batch); err != nil {
+			logBatch := batch[:int(math.Min(10, float64(len(batch))))]
+			w.logger.Error("Could not write a batch of spans to tag table: ", zap.Any("batch", logBatch), zap.Error(err))
+			return err
+		}
+	}
 
 	return nil
 }
-
 
 func (w *SpanWriter) writeSpanData(batchSpans []*Span) error {
 	// fmt.Println("inside write spandata")
@@ -202,8 +202,6 @@ func (w *SpanWriter) writeSpanData(batchSpans []*Span) error {
 
 	return nil
 }
-
-
 
 func (w *SpanWriter) writeTraces(batchSpans []*Span) error {
 
@@ -272,7 +270,6 @@ func (w *SpanWriter) writeTraces(batchSpans []*Span) error {
 	return err
 }
 
-
 func (w *SpanWriter) writeErrorBatch(batchSpans []*Span) error {
 
 	ctx := context.Background()
@@ -315,6 +312,49 @@ func (w *SpanWriter) writeErrorBatch(batchSpans []*Span) error {
 	// 	tag.Upsert(tableKey, w.errorTable),
 	// )
 	// stats.Record(ctx, writeLatencyMillis.M(int64(time.Since(start).Milliseconds())))
+	return err
+}
+
+func (w *SpanWriter) writePossibleKeysToQuery(batchSpans []*Span) error {
+
+	ctx := context.Background()
+
+	queryKeysStatement, err := w.db.PrepareBatch(ctx, fmt.Sprintf("INSERT INTO %s.%s", w.traceDatabase, w.possibleQueryKeyTable))
+	if err != nil {
+		logBatch := batchSpans[:int(math.Min(10, float64(len(batchSpans))))]
+		w.logger.Error("Could not prepare batch for span attributes key table due to error: ", zap.Error(err), zap.Any("batch", logBatch))
+		return err
+	}
+	for _, span := range batchSpans {
+		for _, spanAttribute := range span.SpanAttributes {
+			err = queryKeysStatement.Append(
+				spanAttribute.Key,
+				spanAttribute.TagType,
+				spanAttribute.DataType,
+				spanAttribute.IsColumn,
+			)
+			if err != nil {
+				w.logger.Error("Could not append span to queryKeys Statement to batch due to error: ", zap.Error(err), zap.Object("span", span))
+				return err
+			}
+		}
+	}
+
+	// tagKeyStart := time.Now()
+	err = queryKeysStatement.Send()
+	// stats.RecordWithTags(ctx,
+	// 	[]tag.Mutator{
+	// 		tag.Upsert(exporterKey, string(component.DataTypeTraces)),
+	// 		tag.Upsert(tableKey, w.attributeKeyTable),
+	// 	},
+	// 	writeLatencyMillis.M(int64(time.Since(tagKeyStart).Milliseconds())),
+	// )
+	if err != nil {
+		logBatch := batchSpans[:int(math.Min(10, float64(len(batchSpans))))]
+		w.logger.Error("Could not write to span attributes key table due to error: ", zap.Error(err), zap.Any("batch", logBatch))
+		return err
+	}
+
 	return err
 }
 

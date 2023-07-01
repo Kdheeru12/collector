@@ -16,12 +16,12 @@ import (
 	"go.uber.org/zap"
 )
 
-
 type storage struct {
-	Writer         Writer
+	Writer Writer
 	// usageCollector *usage.UsageCollector
 	// config         storageConfig
 }
+
 func newExporter(cfg *Config, logger *zap.Logger) (*storage, error) {
 
 	newfactory := ClickHouseFactory(cfg.Datasource, cfg.Migrations)
@@ -42,10 +42,10 @@ func getServiceName(res pcommon.Resource) string {
 	serviceAttr, found := res.Attributes().Get("service.name")
 
 	if found {
-       return serviceAttr.Str()
-    }
-	
-    return "unknown-service"
+		return serviceAttr.Str()
+	}
+
+	return "unknown-service"
 }
 
 func TraceIDToHexOrEmptyString(traceID pcommon.TraceID) string {
@@ -62,6 +62,193 @@ func SpanIDToHexOrEmptyString(spanID pcommon.SpanID) string {
 	return ""
 }
 
+func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
+	// value is not used anyways it is redundant utill then
+	//jus
+	spanAttributes := []SpanAttribute{}
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "traceID",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.TraceId,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "spanID",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.SpanId,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "parentSpanID",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.ParentSpanId,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "name",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.Name,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "serviceName",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.ServiceName,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "kind",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "float64",
+		NumberValue: float64(span.Kind),
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "durationNano",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "float64",
+		NumberValue: float64(span.DurationNano),
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "statusCode",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "float64",
+		NumberValue: float64(span.StatusCode),
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:      "hasError",
+		TagType:  "tag",
+		IsColumn: true,
+		DataType: "bool",
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "externalHttpMethod",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.ExternalHttpMethod,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "externalHttpUrl",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.ExternalHttpUrl,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "component",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.Component,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "dbSystem",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.DBSystem,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "dbName",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.DBName,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "dbOperation",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.DBOperation,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "peerService",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.PeerService,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "httpMethod",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.HttpMethod,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "httpUrl",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.HttpUrl,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "httpRoute",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.HttpRoute,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "httpHost",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.HttpHost,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "msgSystem",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.MsgSystem,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "msgOperation",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.MsgOperation,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "rpcSystem",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.RPCSystem,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "rpcService",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.RPCService,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "rpcMethod",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.RPCMethod,
+	})
+	spanAttributes = append(spanAttributes, SpanAttribute{
+		Key:         "responseStatusCode",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "string",
+		StringValue: span.ResponseStatusCode,
+	})
+	return spanAttributes
+}
 
 func populateEvents(events ptrace.SpanEventSlice, span *Span) {
 	for i := 0; i < events.Len(); i++ {
@@ -95,8 +282,7 @@ func populateEvents(events ptrace.SpanEventSlice, span *Span) {
 	}
 }
 
-
-func createStructuredSpan(receivedspan ptrace.Span, ServiceName string, resource pcommon.Resource) *Span{
+func createStructuredSpan(receivedspan ptrace.Span, ServiceName string, resource pcommon.Resource) *Span {
 	spanDurationNano := uint64(receivedspan.EndTimestamp() - receivedspan.StartTimestamp())
 	tagMap := map[string]string{}
 	stringTagMap := map[string]string{}
@@ -106,7 +292,6 @@ func createStructuredSpan(receivedspan ptrace.Span, ServiceName string, resource
 	attributes := receivedspan.Attributes()
 	resourceAttrs := map[string]string{}
 	resourceAttributes := resource.Attributes()
-
 
 	attributes.Range(func(k string, v pcommon.Value) bool {
 		tagMap[k] = v.AsString()
@@ -166,22 +351,22 @@ func createStructuredSpan(receivedspan ptrace.Span, ServiceName string, resource
 	})
 
 	var span *Span = &Span{
-		ServiceName: ServiceName,
-		TraceId: TraceIDToHexOrEmptyString(receivedspan.TraceID()),
-		ParentSpanId: SpanIDToHexOrEmptyString(receivedspan.ParentSpanID()),
-		SpanId: SpanIDToHexOrEmptyString(receivedspan.SpanID()),
-		Name: receivedspan.Name(),
-		Kind: int8(receivedspan.Kind()),
+		ServiceName:       ServiceName,
+		TraceId:           TraceIDToHexOrEmptyString(receivedspan.TraceID()),
+		ParentSpanId:      SpanIDToHexOrEmptyString(receivedspan.ParentSpanID()),
+		SpanId:            SpanIDToHexOrEmptyString(receivedspan.SpanID()),
+		Name:              receivedspan.Name(),
+		Kind:              int8(receivedspan.Kind()),
 		StartTimeUnixNano: uint64(receivedspan.StartTimestamp()),
-		EndTimeUnixNano: uint64(receivedspan.EndTimestamp()),
-		DurationNano: spanDurationNano,
-		StatusCode: int16(receivedspan.Status().Code()),
+		EndTimeUnixNano:   uint64(receivedspan.EndTimestamp()),
+		DurationNano:      spanDurationNano,
+		StatusCode:        int16(receivedspan.Status().Code()),
 		TagMap:            tagMap,
 		StringTagMap:      stringTagMap,
 		NumberTagMap:      numberTagMap,
 		BoolTagMap:        boolTagMap,
 		ResourceTagsMap:   resourceAttrs,
-		HasError: int16(receivedspan.Status().Code()) == 2,
+		HasError:          int16(receivedspan.Status().Code()) == 2,
 		TraceModel: TraceModel{
 			TraceId:           TraceIDToHexOrEmptyString(receivedspan.TraceID()),
 			SpanId:            SpanIDToHexOrEmptyString(receivedspan.SpanID()),
@@ -269,8 +454,9 @@ func createStructuredSpan(receivedspan ptrace.Span, ServiceName string, resource
 	populateEvents(receivedspan.Events(), span)
 	span.TraceModel.Events = span.Events
 	span.TraceModel.HasError = span.HasError
+	spanAttributes = append(spanAttributes, addTraceFieldsIntoSpanAttributes(span)...)
 	span.SpanAttributes = spanAttributes
-	
+
 	return span
 
 }
@@ -283,9 +469,8 @@ func (s *storage) pushTraceData(ctx context.Context, td ptrace.Traces) error {
 		// fmt.Printf("ResourceSpans #%d\n", i)
 		rs := rss.At(i)
 
-		
 		serviceName := getServiceName(rs.Resource())
-		
+
 		// InstrumentationLibrarySpans
 		ilss := rs.ScopeSpans()
 		for j := 0; j < ilss.Len(); j++ {
@@ -304,7 +489,7 @@ func (s *storage) pushTraceData(ctx context.Context, td ptrace.Traces) error {
 				err := s.Writer.PushSpanIntoQueue(structuredSpan)
 				// fmt.Println(structuredSpan, json.Unmarshal(data, &structuredSpan), structuredSpan.MarshalLogObject(encoder), "dakmladl")
 				// fmt.Printf("%+v\n", structuredSpan)
-				fmt.Printf("%#v\n", structuredSpan)
+				// fmt.Printf("%#v\n", structuredSpan)
 				if err != nil {
 					zap.S().Error("Error in writing spans to clickhouse: ", err)
 				}
