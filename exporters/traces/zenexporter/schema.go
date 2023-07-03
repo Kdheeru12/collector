@@ -120,6 +120,7 @@ type SpanAttribute struct {
 	StringValue string
 	NumberValue float64
 	IsColumn    bool
+	ServiceName string
 }
 
 func (s *Span) MarshalLogObject(enc zapcore.ObjectEncoder) error {

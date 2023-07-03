@@ -325,12 +325,18 @@ func (w *SpanWriter) writePossibleKeysToQuery(batchSpans []*Span) error {
 		w.logger.Error("Could not prepare batch for span attributes key table due to error: ", zap.Error(err), zap.Any("batch", logBatch))
 		return err
 	}
+
 	for _, span := range batchSpans {
 		for _, spanAttribute := range span.SpanAttributes {
+
+			if spanAttribute.ServiceName == "" {
+				spanAttribute.ServiceName = span.ServiceName
+			}
 			err = queryKeysStatement.Append(
 				spanAttribute.Key,
 				spanAttribute.TagType,
 				spanAttribute.DataType,
+				spanAttribute.ServiceName,
 				spanAttribute.IsColumn,
 			)
 			if err != nil {

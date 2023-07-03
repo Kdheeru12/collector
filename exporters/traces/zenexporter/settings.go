@@ -18,30 +18,29 @@ const (
 	EncodingProto Encoding = "protobuf"
 )
 
-
 const (
 	defaultDatasource               string        = "tcp://localhost:9002/?database=zen_traces_test"
 	defaultTraceDatabase            string        = "zen_traces_test" // zen_traces_test
 	defaultMigrations               string        = "/exporters/traces/zenexporter/migrations"
 	defaultOperationsTable          string        = "distributed_signoz_operations"
 	defaultIndexTable               string        = "distributed_traces" // distributed_traces
-	localIndexTable                 string        = "traces" // traces
+	localIndexTable                 string        = "traces"             // traces
 	defaultErrorTable               string        = "distributed_trace_errors"
-	defaultSpansTable               string        = "distributed_spans" // distributed_spans
+	defaultSpansTable               string        = "distributed_spans"           // distributed_spans
 	defaultAttributeTable           string        = "distributed_span_attributes" // distributed_span_attributes
-	defaultDurationSortTable        string        = "traces_durationSort" // traces_duration_sort
+	defaultPossibleQueryKeys        string        = "distributed_query_keys"
+	defaultDurationSortTable        string        = "traces_durationSort"   // traces_duration_sort
 	defaultDurationSortMVTable      string        = "traces_durationSortMV" // traces_duration_sort_mv
 	defaultArchiveSpansTable        string        = "signoz_archive_spans"
 	defaultClusterName              string        = "cluster"
-	defaultDependencyGraphTable     string        = "service_dependency_graph" // service_dependency_graph
+	defaultDependencyGraphTable     string        = "service_dependency_graph"                    // service_dependency_graph
 	defaultDependencyGraphServiceMV string        = "service_dependency_graph_messaging_calls_mv" // service_dependency_graph_messaging_calls_mv
-	defaultDependencyGraphDbMV      string        = "service_dependency_graph_db_calls_mv" // service_dependency_graph_db_calls_mv
-	DependencyGraphMessagingMV      string        = "service_dependency_graph_service_calls_mv" // service_dependency_graph_service_calls_mv
+	defaultDependencyGraphDbMV      string        = "service_dependency_graph_db_calls_mv"        // service_dependency_graph_db_calls_mv
+	DependencyGraphMessagingMV      string        = "service_dependency_graph_service_calls_mv"   // service_dependency_graph_service_calls_mv
 	defaultWriteBatchDelay          time.Duration = 2 * time.Second
 	defaultWriteBatchSize           int           = 100000
 	defaultEncoding                 Encoding      = EncodingJSON
 )
-
 
 type clickHouseConfig struct {
 	namespace                  string
@@ -55,6 +54,7 @@ type clickHouseConfig struct {
 	SpansTable                 string
 	ErrorTable                 string
 	AttributeTable             string
+	PossibleQueryKeys          string
 	Cluster                    string
 	DurationSortTable          string
 	DurationSortMVTable        string
@@ -63,14 +63,13 @@ type clickHouseConfig struct {
 	DependencyGraphMessagingMV string
 	DependencyGraphTable       string
 	// DockerMultiNodeCluster     bool
-	WriteBatchDelay            time.Duration
-	WriteBatchSize             int
-	Encoding                   Encoding
-	DBConnector                DatabaseConnector
+	WriteBatchDelay time.Duration
+	WriteBatchSize  int
+	Encoding        Encoding
+	DBConnector     DatabaseConnector
 }
 
 type DatabaseConnector func(cfg *clickHouseConfig) (clickhouse.Conn, error)
-
 
 type ClickHouseSettings struct {
 	defaultConfig *clickHouseConfig
@@ -99,6 +98,7 @@ func GetDefaultSettings(migrations string, datasource string, primaryNamespace s
 			ErrorTable:                 defaultErrorTable,
 			SpansTable:                 defaultSpansTable,
 			AttributeTable:             defaultAttributeTable,
+			PossibleQueryKeys:          defaultPossibleQueryKeys,
 			DurationSortTable:          defaultDurationSortTable,
 			DurationSortMVTable:        defaultDurationSortMVTable,
 			Cluster:                    defaultClusterName,
@@ -107,10 +107,10 @@ func GetDefaultSettings(migrations string, datasource string, primaryNamespace s
 			DependencyGraphDbMV:        defaultDependencyGraphDbMV,
 			DependencyGraphMessagingMV: DependencyGraphMessagingMV,
 			// DockerMultiNodeCluster:     dockerMultiNodeCluster,
-			WriteBatchDelay:            defaultWriteBatchDelay,
-			WriteBatchSize:             defaultWriteBatchSize,
-			Encoding:                   defaultEncoding,
-			DBConnector:                  defaultClickHouseConnector,
+			WriteBatchDelay: defaultWriteBatchDelay,
+			WriteBatchSize:  defaultWriteBatchSize,
+			Encoding:        defaultEncoding,
+			DBConnector:     defaultClickHouseConnector,
 		},
 		others: make(map[string]*clickHouseConfig, len(otherNamespaces)),
 	}
@@ -127,7 +127,7 @@ func GetDefaultSettings(migrations string, datasource string, primaryNamespace s
 				WriteBatchDelay: defaultWriteBatchDelay,
 				WriteBatchSize:  defaultWriteBatchSize,
 				Encoding:        defaultEncoding,
-				DBConnector:       defaultClickHouseConnector,
+				DBConnector:     defaultClickHouseConnector,
 			}
 		} else {
 			options.others[namespace] = &clickHouseConfig{namespace: namespace}
@@ -136,7 +136,6 @@ func GetDefaultSettings(migrations string, datasource string, primaryNamespace s
 
 	return options
 }
-
 
 func defaultClickHouseConnector(cfg *clickHouseConfig) (clickhouse.Conn, error) {
 
@@ -157,7 +156,7 @@ func defaultClickHouseConnector(cfg *clickHouseConfig) (clickhouse.Conn, error) 
 
 	// open connection
 	dbClient, err := clickhouse.Open(options)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +165,7 @@ func defaultClickHouseConnector(cfg *clickHouseConfig) (clickhouse.Conn, error) 
 		return nil, err
 	}
 
-	// check if database exists or create it	
+	// check if database exists or create it
 	query := fmt.Sprintf(`CREATE DATABASE IF NOT EXISTS %s ON CLUSTER %s`, url.Query().Get("database"), cfg.Cluster)
 
 	if err := dbClient.Exec(ctx, query); err != nil {

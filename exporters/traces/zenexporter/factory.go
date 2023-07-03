@@ -138,7 +138,7 @@ func (f *Factory) Initialize(logger *zap.Logger) error {
 		"file://"+f.Settings.defaultConfig.Migrations,
 		clickhouseUrl)
 	if err != nil {
-		return fmt.Errorf("Clickhouse Migrate failed to run, error: %s", err)
+		return fmt.Errorf("clickhouse migrate failed to run, error: %s", err)
 	}
 	m.Up()
 	f.logger.Info("Clickhouse Migrate finished", zap.Error(err))

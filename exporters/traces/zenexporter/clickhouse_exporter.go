@@ -72,6 +72,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.TraceId,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "spanID",
@@ -79,6 +80,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.SpanId,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "parentSpanID",
@@ -86,6 +88,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.ParentSpanId,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "name",
@@ -93,6 +96,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.Name,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "serviceName",
@@ -100,6 +104,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.ServiceName,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "kind",
@@ -107,6 +112,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "float64",
 		NumberValue: float64(span.Kind),
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "durationNano",
@@ -114,6 +120,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "float64",
 		NumberValue: float64(span.DurationNano),
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "statusCode",
@@ -121,12 +128,14 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "float64",
 		NumberValue: float64(span.StatusCode),
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
-		Key:      "hasError",
-		TagType:  "tag",
-		IsColumn: true,
-		DataType: "bool",
+		Key:         "hasError",
+		TagType:     "tag",
+		IsColumn:    true,
+		DataType:    "bool",
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "externalHttpMethod",
@@ -134,6 +143,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.ExternalHttpMethod,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "externalHttpUrl",
@@ -141,6 +151,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.ExternalHttpUrl,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "component",
@@ -148,6 +159,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.Component,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "dbSystem",
@@ -155,6 +167,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.DBSystem,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "dbName",
@@ -162,6 +175,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.DBName,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "dbOperation",
@@ -169,6 +183,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.DBOperation,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "peerService",
@@ -176,6 +191,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.PeerService,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "httpMethod",
@@ -183,6 +199,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.HttpMethod,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "httpUrl",
@@ -190,6 +207,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.HttpUrl,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "httpRoute",
@@ -197,6 +215,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.HttpRoute,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "httpHost",
@@ -204,6 +223,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.HttpHost,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "msgSystem",
@@ -211,6 +231,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.MsgSystem,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "msgOperation",
@@ -218,6 +239,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.MsgOperation,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "rpcSystem",
@@ -225,6 +247,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.RPCSystem,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "rpcService",
@@ -232,6 +255,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.RPCService,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "rpcMethod",
@@ -239,6 +263,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.RPCMethod,
+		ServiceName: "allservices",
 	})
 	spanAttributes = append(spanAttributes, SpanAttribute{
 		Key:         "responseStatusCode",
@@ -246,6 +271,7 @@ func addTraceFieldsIntoSpanAttributes(span *Span) []SpanAttribute {
 		IsColumn:    true,
 		DataType:    "string",
 		StringValue: span.ResponseStatusCode,
+		ServiceName: "allservices",
 	})
 	return spanAttributes
 }
